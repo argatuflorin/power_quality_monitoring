@@ -1,40 +1,79 @@
-# Sistem inteligent de monitorizare și optimizare a consumului energetic la nivel de consumator rezidențial
+# Sistem Inteligent de Monitorizare și Optimizare Energetică (Smart Home)
 
-[cite_start]**Absolvent:** VLAD Ionuț-Cristian [cite: 560]
-**Conducători științifici:** Conf.dr.ing. ARGATU Florin-Ciprian, Conf.dr.ing. [cite_start]ADOCHIEI Felix
-
-[cite_start]**Instituție:** Universitatea Națională de Știință și Tehnologie POLITEHNICA București [cite: 556]
-[cite_start]**Facultatea:** Inginerie Electrică [cite: 556]
-[cite_start]**Anul:** 2025 [cite: 564]
+Proiect de diplomă axat pe monitorizarea în timp real a consumului electric rezidențial și predicția acestuia folosind Inteligența Artificială (LSTM).
 
 ---
 
-## Introducere
-
-[cite_start]Lucrarea de față își propune să găsească o soluție pentru societatea aflată în evoluție continuă, atât din punct de vedere al tehnologizării, cât și al diversificării nevoilor individuale[cite: 616]. [cite_start]Automatizarea locuinței și monitorizarea consumului de energie electrică devin din ce în ce mai relevante pentru eficiența energetică, reducerea costurilor și protejarea mediului[cite: 617].
-
-[cite_start]În acest context, soluțiile de tip **smart home**, precum cele bazate pe platforma **Home Assistant**, reprezintă un pas necesar pentru adaptarea la noile cerințe tehnologice și sustenabile[cite: 618]. [cite_start]Principala motivație a acestui proiect este nevoia urgentă de a înțelege și controla consumul de energie electrică, în special în contextul european unde eficiența energetică este prioritară[cite: 619].
-
-[cite_start]Proiectul oferă o alternativă practică ce permite utilizatorilor să își evalueze consumul și să ia decizii pentru a reduce pierderile[cite: 622]. [cite_start]Sistemul combină microcontrolere (ESP32), protocoale de comunicare industriale (Modbus) și platforme software moderne (Grafana, InfluxDB) pentru a optimiza consumul energetic în timp real[cite: 633, 636].
+## Ce conține acest sistem:
+- **Hardware:**
+  - [cite_start]**ESP32-WROOM-32** (Unitatea centrală de control) [cite: 1180, 1228]
+  - [cite_start]**Janitza UMG 104** (Analizor de rețea industrial) [cite: 1182, 1227]
+  - [cite_start]**Convertor TTL la RS485 (MAX485)** (Interfața de comunicare) [cite: 1181, 1228]
+- **Software:**
+  - [cite_start]**Home Assistant** (Dashboard și control local) [cite: 1186, 1210]
+  - [cite_start]**InfluxDB** (Stocarea datelor istorice) [cite: 1188, 1225]
+  - [cite_start]**Grafana** (Vizualizare avansată și alerte) [cite: 1189, 1225]
+  - [cite_start]**Protocol MQTT** (Transfer de date rapid) [cite: 1187, 1225]
+  - [cite_start]**Google Colab / Python** (Modelul de predicție AI) [cite: 1190, 1228]
 
 ---
 
-## 1. Noțiuni teoretice
+## Step 1: Arhitectura Sistemului
 
-### 1.1. Metode de optimizare a eficienței energiei electrice
-[cite_start]Metodele de optimizare se referă la utilizarea consumatorilor casnici cu un consum redus de energie[cite: 639]. [cite_start]În Uniunea Europeană, standardele reglementate după 1 martie 2021 clasifică aparatele pe o scară de la **A la G**, unde clasa A reprezintă eficiența maximă[cite: 640].
+Sistemul funcționează pe modelul **Master-Slave** prin protocolul **Modbus RTU**:
+1. [cite_start]**Master (ESP32):** Trimite cereri periodice către analizorul Janitza prin magistrala RS485[cite: 1227, 572].
+2. [cite_start]**Slave (Janitza UMG 104):** Măsoară parametrii electrici (tensiune, curent, putere) și răspunde cererilor[cite: 1227, 573].
+3. [cite_start]**Cloud/Local:** ESP32 trimite datele prin Wi-Fi către un server Home Assistant folosind protocolul MQTT[cite: 1225, 602].
 
-[cite_start]Pe lângă utilizarea aparatelor eficiente, lucrarea cercetează implementarea sistemelor de monitorizare bazate pe platforma **Arduino**, senzori și microcontrolere pentru vizualizarea și transmiterea datelor către sisteme de control[cite: 642, 643].
+---
 
-### 1.2. Protocoale de comunicație
-[cite_start]Într-un sistem de comunicații, dispozitivele care schimbă informații se numesc entități de comunicație și respectă reguli standardizate numite protocoale[cite: 646, 647]. [cite_start]Acestea au rolul de a iniția, gestiona și controla comunicația, stabilind reguli pentru reprezentarea datelor, semnalizare și detecția erorilor[cite: 650].
+## Step 2: Conexiuni Hardware (Wiring)
 
-#### 1.2.1 Protocoale de comunicație fără fir (Wireless)
-[cite_start]Acestea elimină necesitatea conexiunilor fizice, utilizând unde electromagnetice (frecvențe radio sau microunde)[cite: 653, 654]. [cite_start]Sunt esențiale pentru sistemele care necesită mobilitate ridicată[cite: 655].
+Pentru a realiza comunicația între ESP32 și Janitza UMG 104, trebuie să conectezi pinii conform tabelului de mai jos:
 
-*Fig.1.1. [cite_start]Protocoale de comunicație fără fir* [cite: 657]
+| Componentă | Pin ESP32 | Descriere |
+| :--- | :--- | :--- |
+| **MAX485 RO** | RX2 (GPIO16) | [cite_start]Receivier Output (Recepție date) [cite: 547] |
+| **MAX485 DI** | TX2 (GPIO17) | [cite_start]Driver Input (Transmisie date) [cite: 547] |
+| **MAX485 DE/RE** | GPIO4 | [cite_start]Control direcție (legat împreună) [cite: 548] |
+| **VCC** | 3.3V / 5V | [cite_start]Alimentare modul [cite: 1181] |
 
-**Tehnologia Wi-Fi (IEEE 802.11):**
-[cite_start]Reprezintă una dintre cele mai utilizate soluții pentru rețele locale, susținând de la telefoane și laptopuri până la echipamente IoT[cite: 658, 659]. [cite_start]A evoluat constant, oferind viteze ridicate (peste 600 Mbps în standardele moderne) și ușurință în configurare[cite: 660, 661].
+[cite_start]**Important:** Janitza UMG 104 utilizează portul RS485 (A, B) pentru a se lega la ieșirea convertorului MAX485[cite: 573].
 
-*Fig.1.2. [cite_start]Rețea de tip Wi-Fi* [cite: 611]
+---
+
+## Step 3: Testarea Comunicării Modbus
+
+După realizarea conexiunilor, folosește acest snippet de cod în **Arduino IDE** pentru a verifica dacă ESP32 poate citi un registru (de ex: Tensiunea pe L1) de la adresa 19000:
+
+```cpp
+#include <ModbusMaster.h>
+
+#define MAX485_RE_DE 4
+ModbusMaster node;
+
+void preTransmission() { digitalWrite(MAX485_RE_DE, HIGH); }
+void postTransmission() { digitalWrite(MAX485_RE_DE, LOW); }
+
+void setup() {
+  pinMode(MAX485_RE_DE, OUTPUT);
+  digitalWrite(MAX485_RE_DE, LOW);
+  
+  Serial.begin(115200);
+  Serial2.begin(9600, SERIAL_8N1, 16, 17); // RX2=16, TX2=17
+  
+  node.begin(1, Serial2); // Adresa Modbus a Janitza (implicit 1)
+  node.preTransmission(preTransmission);
+  node.postTransmission(postTransmission);
+}
+
+void loop() {
+  uint8_t result = node.readHoldingRegisters(19000, 2); // Citește tensiunea L1
+  if (result == node.ku8MBSuccess) {
+    Serial.println("Succes! Date recepționate de la Janitza.");
+  } else {
+    Serial.print("Eroare Modbus: ");
+    Serial.println(result, HEX);
+  }
+  delay(1000);
+}
