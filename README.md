@@ -1,7 +1,8 @@
 # Sistem inteligent de monitorizare și optimizare a consumului energetic la nivel de consumator rezidențial
 
 [cite_start]**Absolvent:** VLAD Ionuț-Cristian [cite: 560]
-**Conducători științifici:** Conf.dr.ing. ARGATU Florin-Ciprian, Conf.dr.ing. [cite_start]ADOCHIEI Felix [cite: 561, 562]
+**Conducători științifici:** Conf.dr.ing. ARGATU Florin-Ciprian, Conf.dr.ing. [cite_start]ADOCHIEI Felix
+
 [cite_start]**Instituție:** Universitatea Națională de Știință și Tehnologie POLITEHNICA București [cite: 556]
 [cite_start]**Facultatea:** Inginerie Electrică [cite: 556]
 [cite_start]**Anul:** 2025 [cite: 564]
